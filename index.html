@@ -313,31 +313,6 @@
   }
   .combo-empty{padding:16px; text-align:center; color:var(--muted); font-size:13px;}
 
-<div id="popup" style="
-position:fixed;
-top:20px;
-left:50%;
-transform:translateX(-50%);
-background:#111;
-color:#fff;
-padding:15px 25px;
-border-radius:12px;
-box-shadow:0 8px 20px rgba(0,0,0,.3);
-font-family:Arial,sans-serif;
-z-index:9999;
-display:none;">
-🔥 Many users are using this website right now. Please wait...
-</div>
-
-<script>
-window.onload = function () {
-  const p = document.getElementById("popup");
-  p.style.display = "block";
-  setTimeout(() => {
-    p.style.display = "none";
-  }, 5000);
-};
-</script>
   
   /* ===== CUTOFF LINK + PANEL ===== */
   .cutoff-link{
@@ -763,7 +738,31 @@ window.onload = function () {
 <footer>
   Data sourced from the official AP ECET 2026 seat allotment list &nbsp;&bull;&nbsp; <strong>For reference only</strong> &mdash; candidates should verify allotment status via the official APSCHE / ECET counselling portal.
 </footer>
+<div id="popup" style="
+position:fixed;
+top:20px;
+left:50%;
+transform:translateX(-50%);
+background:#111;
+color:#fff;
+padding:15px 25px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,.3);
+font-family:Arial,sans-serif;
+z-index:9999;
+display:none;">
+🔥 Many users are using this website right now. Please wait...
+</div>
 
+<script>
+window.onload = function () {
+  const p = document.getElementById("popup");
+  p.style.display = "block";
+  setTimeout(() => {
+    p.style.display = "none";
+  }, 5000);
+};
+</script>
 <script src="app.js"></script>
 </body>
 </html>
