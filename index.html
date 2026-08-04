@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AP ECET 2026 &mdash; Seat Allotment Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAFAFA;
+    --surface:#FFFFFF;
+    --ink:#0A0A0A;
+    --ink-soft:#262626;
+    --muted:#71717A;
+    --line:#E4E4E7;
+    --line-strong:#D4D4D8;
+    --teal:#0F766E;
+    --teal-light:#EAF5F3;
+    --blue:#1D4ED8;
+    --blue-light:#EBF0FE;
+    --pink:#BE185D;
+    --pink-light:#FCEAF1;
+    --amber:#92400E;
+    --amber-light:#FBF0E4;
+    --radius:12px;
+    --radius-sm:8px;
+    --shadow-sm:0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:0 2px 10px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-lg:0 12px 32px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.05);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:'Space Grotesk', system-ui, sans-serif;}
+
+  /* ===== MASTHEAD ===== */
+  .masthead{
+    background:var(--ink);
+    color:#fff;
+    padding:26px 20px 22px;
+    position:relative;
+    overflow:hidden;
+    border-bottom:3px solid var(--teal);
+  }
+  .masthead::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(420px 200px at 90% -20%, rgba(255,255,255,0.06), transparent 60%);
+    pointer-events:none;
+  }
+  .masthead-inner{
+    max-width:1180px;
+    margin:0 auto;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px;
+    position:relative;
+    z-index:1;
+  }
+  .brand-eyebrow{
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-size:11px;
+    font-weight:700;
+    color:#9CA3AF;
+    margin:0 0 8px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .brand-eyebrow::before{
+    content:"";
+    width:6px; height:6px;
+    border-radius:50%;
+    background:var(--teal);
+  }
+  .brand-title{
+    font-size:clamp(23px, 4vw, 32px);
+    font-weight:700;
+    margin:0;
+    color:#FFFFFF;
+    line-height:1.15;
+    letter-spacing:-0.01em;
+  }
+  .brand-sub{
+    margin:9px 0 0;
+    font-size:13.5px;
+    color:#B9BEC7;
+    max-width:520px;
+    line-height:1.55;
+  }
+  .masthead-meta{display:flex; gap:8px;}
+  .meta-pill{
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:var(--radius-sm);
+    padding:8px 14px;
+    text-align:center;
+  }
+  .meta-pill strong{
+    display:block;
+    font-family:'Space Grotesk', sans-serif;
+    font-size:16px;
+    font-weight:700;
+    color:#fff;
+    line-height:1.1;
+  }
+  .meta-pill span{
+    font-size:10px;
+    color:#9CA3AF;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  /* ===== NAV TABS — guaranteed single line, no horizontal scroll ===== */
+  .tabbar{
+    background:var(--bg);
+    border-bottom:1px solid var(--line);
+    position:sticky;
+    top:0;
+    z-index:20;
+    box-shadow:var(--shadow-sm);
+    padding:10px 0;
+  }
+  .tabbar-inner{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 12px;
+  }
+  .filter-group{
+    display:flex;
+    width:100%;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:3px;
+    gap:2px;
+  }
+  .tab-btn{
+    appearance:none;
+    border:none;
+    background:transparent;
+    font-family:inherit;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--muted);
+    padding:9px 6px;
+    border-radius:999px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    transition:background .15s ease, color .15s ease;
+    flex:1 1 0;
+    min-width:0;
+  }
+  .tab-btn .label{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .tab-btn svg{width:15px; height:15px; flex-shrink:0; stroke:currentColor;}
+  .tab-btn:hover{color:var(--ink);}
+  .tab-btn.active{color:#fff; background:var(--ink);}
+
+  /* ===== MAIN ===== */
+  main{max-width:1180px; margin:0 auto; padding:28px 20px 80px;}
+  .panel{display:none;}
+  .panel.active{display:block; animation:fadeUp .2s ease;}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(5px);} to{opacity:1; transform:translateY(0);}}
+
+  .panel-head{margin-bottom:20px;}
+  .panel-head h2{font-size:20px; font-weight:700; color:var(--ink); margin:0 0 5px; letter-spacing:-0.01em;}
+  .panel-head p{margin:0; color:var(--muted); font-size:13.5px; line-height:1.55; max-width:640px;}
+
+  /* ===== SEARCH CARD ===== */
+  .search-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-md);
+    padding:20px;
+    margin-bottom:16px;
+    position:relative;
+  }
+  .search-card::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0;
+    height:3px;
+    border-radius:var(--radius) var(--radius) 0 0;
+    background:var(--ink);
+  }
+
+  .field-row{display:grid; gap:12px; align-items:end;}
+  .field-row.cols-college{grid-template-columns:2.1fr 1fr;}
+  .field-row.cols-search-1{grid-template-columns:1fr auto;}
+  .field-row.cols-search-2{grid-template-columns:1fr auto auto;}
+
+  .field{min-width:0; display:flex; flex-direction:column; gap:6px;}
+  .field label{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .field input, .field select{
+    font-family:inherit;
+    font-size:14.5px;
+    padding:11px 13px;
+    border:1.5px solid var(--line-strong);
+    border-radius:var(--radius-sm);
+    background:#fff;
+    color:var(--ink);
+    outline:none;
+    width:100%;
+    max-width:100%;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .field input:focus, .field select:focus{
+    border-color:var(--ink);
+    box-shadow:0 0 0 3px rgba(10,10,10,0.08);
+  }
+  .field select:disabled{background:#F4F4F5; color:var(--muted); cursor:not-allowed;}
+  .field-actions{display:flex; gap:8px;}
+
+  .btn{
+    font-family:inherit;
+    font-size:14px;
+    font-weight:700;
+    padding:11px 20px;
+    border-radius:var(--radius-sm);
+    border:1.5px solid var(--ink);
+    background:var(--ink);
+    color:#fff;
+    cursor:pointer;
+    transition:background .15s ease, transform .1s ease;
+    white-space:nowrap;
+  }
+  .btn:hover{background:var(--ink-soft);}
+  .btn:active{transform:translateY(1px);}
+  .btn-ghost{background:transparent; color:var(--ink); border:1.5px solid var(--line-strong);}
+  .btn-ghost:hover{border-color:var(--ink); background:#F4F4F5;}
+
+  .hint{font-size:12px; color:var(--muted); margin-top:9px;}
+
+  /* ===== SEARCHABLE COLLEGE COMBO ===== */
+  .combo{position:relative;}
+  .combo input[type="text"]{
+    font-family:inherit;
+    font-size:14.5px;
+    padding:11px 13px;
+    border:1.5px solid var(--line-strong);
+    border-radius:var(--radius-sm);
+    background:#fff;
+    color:var(--ink);
+    outline:none;
+    width:100%;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .combo input[type="text"]:focus{border-color:var(--ink); box-shadow:0 0 0 3px rgba(10,10,10,0.08);}
+  .combo-list{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0; right:0;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    box-shadow:var(--shadow-lg);
+    max-height:280px;
+    overflow-y:auto;
+    z-index:30;
+    display:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .combo-list.open{display:block;}
+  .combo-item{
+    padding:10px 13px;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    border-bottom:1px solid var(--line);
+  }
+  .combo-item:last-child{border-bottom:none;}
+  .combo-item:hover, .combo-item.active{background:#F4F4F5;}
+  .combo-item .c-name{font-weight:600; font-size:13.5px; color:var(--ink); line-height:1.3;}
+  .combo-item .c-code{
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:.02em;
+    color:var(--ink);
+    background:#F0F0F1;
+    padding:3px 8px;
+    border-radius:99px;
+    flex-shrink:0;
+    white-space:nowrap;
+  }
+  .combo-empty{padding:16px; text-align:center; color:var(--muted); font-size:13px;}
+
+  /* ===== CUTOFF LINK + PANEL ===== */
+  .cutoff-link{
+    appearance:none;
+    background:none;
+    border:none;
+    padding:0;
+    margin-top:12px;
+    font-family:inherit;
+    font-size:13px;
+    font-weight:700;
+    color:var(--teal);
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .cutoff-link:disabled{color:var(--muted); cursor:not-allowed;}
+  .cutoff-link svg{width:13px; height:13px; transition:transform .15s ease;}
+  .cutoff-link.open svg{transform:rotate(90deg);}
+
+  .cutoff-panel{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-md);
+    padding:18px;
+    margin-top:12px;
+    margin-bottom:16px;
+  }
+  .cutoff-panel[hidden]{display:none;}
+
+  .cutoff-widget-row{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .cutoff-combo input[type="text"]{padding:10px 12px; font-size:13.5px;}
+  #college-cutoff-panel select,
+  .cutoff-widget-row select{
+    font-family:inherit;
+    font-size:13.5px;
+    padding:10px 12px;
+    border:1.5px solid var(--line-strong);
+    border-radius:var(--radius-sm);
+    background:#fff;
+    color:var(--ink);
+    width:100%;
+  }
+  .cutoff-hint{font-size:13px; color:var(--muted); margin:4px 0 0;}
+  .cutoff-caption{font-size:12px; color:var(--muted); margin:0 0 12px; line-height:1.5;}
+  .cutoff-table-wrap{
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  table.cutoff-table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  .cutoff-table thead th{
+    background:var(--bg);
+    color:var(--ink-soft);
+    text-align:right;
+    font-weight:700;
+    font-size:10px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    padding:9px 11px;
+    white-space:nowrap;
+    border-bottom:1px solid var(--line);
+  }
+  .cutoff-table thead th:first-child{text-align:left;}
+  .cutoff-table tbody td{
+    padding:9px 11px;
+    border-top:1px solid var(--line);
+    white-space:nowrap;
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+  }
+  .cutoff-table tbody tr:nth-child(even){background:#FAFAFA;}
+  .cutoff-table td.b-name-cell{
+    text-align:left;
+    font-weight:600;
+    color:var(--ink);
+    white-space:normal;
+    min-width:180px;
+  }
+
+  /* ===== RESULTS ===== */
+  .results-meta{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:10px;}
+  .results-count{font-size:13px; color:var(--muted); font-weight:500;}
+  .results-count strong{color:var(--ink); font-weight:700;}
+
+  .table-wrap{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-md);
+    overflow:hidden;
+  }
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  thead th{
+    background:var(--ink);
+    color:#F4F4F5;
+    text-align:left;
+    font-weight:600;
+    font-size:11px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    padding:12px 14px;
+    white-space:nowrap;
+  }
+  tbody td{padding:12px 14px; border-top:1px solid var(--line); color:var(--ink); vertical-align:top;}
+  tbody tr:nth-child(even){background:#FAFAFA;}
+  tbody tr:hover{background:#F0F0F1;}
+  td.num{font-variant-numeric:tabular-nums; font-weight:600; color:var(--ink);}
+  td.name-cell{font-weight:600;}
+  .badge{display:inline-block; font-size:11px; font-weight:700; padding:3px 9px; border-radius:99px; letter-spacing:.02em;}
+  .badge-cat{background:var(--amber-light); color:var(--amber); border:1px solid #E9D2B3;}
+  .badge-sex-M{background:var(--blue-light); color:var(--blue);}
+  .badge-sex-F{background:var(--pink-light); color:var(--pink);}
+  .college-name-cell{color:var(--muted); font-size:12.5px; max-width:260px;}
+
+  .empty-state{padding:56px 24px; text-align:center; color:var(--muted);}
+  .empty-state .icon{
+    width:44px; height:44px;
+    margin:0 auto 14px;
+    border-radius:50%;
+    background:#F0F0F1;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    font-weight:700;
+    font-family:'Space Grotesk', sans-serif;
+  }
+  .empty-state h3{margin:0 0 6px; color:var(--ink); font-size:15.5px; font-weight:700;}
+  .empty-state p{margin:0; font-size:13px; max-width:360px; margin:0 auto;}
+
+  /* ===== SEAT AVAILABILITY SUMMARY ===== */
+  .seats-summary{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-md);
+    padding:20px;
+    margin-bottom:18px;
+    position:relative;
+  }
+  .seats-summary::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0;
+    height:3px;
+    border-radius:var(--radius) var(--radius) 0 0;
+    background:linear-gradient(90deg, var(--ink) 0%, var(--teal) 100%);
+  }
+  .seats-summary-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    gap:16px;
+    margin-bottom:16px;
+    padding-bottom:16px;
+    border-bottom:1px dashed var(--line-strong);
+  }
+  .seats-summary-title{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:0 0 4px;}
+  .seats-summary-college{font-family:'Space Grotesk', sans-serif; font-size:16.5px; font-weight:700; color:var(--ink); margin:0; max-width:440px; line-height:1.3;}
+  .seat-stats{display:flex; gap:10px; flex-wrap:wrap;}
+  .seat-stat{background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-sm); padding:10px 16px; text-align:center; min-width:110px;}
+  .seat-stat-label{display:block; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin-bottom:4px;}
+  .seat-stat-value{font-family:'Space Grotesk', sans-serif; font-size:20px; font-weight:700; line-height:1.1;}
+  .tone-ink{color:var(--ink);}
+  .tone-teal{color:var(--teal);}
+  .tone-primary{color:var(--ink);}
+
+  .seats-table-wrap{border:1px solid var(--line); border-radius:var(--radius-sm); overflow:hidden; overflow-x:auto;}
+  table.seats-table{width:100%; border-collapse:collapse; font-size:13px;}
+  .seats-table thead th{
+    background:var(--bg);
+    color:var(--muted);
+    text-align:left;
+    font-weight:700;
+    font-size:10.5px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    padding:10px 14px;
+    white-space:nowrap;
+    border-bottom:1px solid var(--line);
+  }
+  .seats-table thead th.num, .seats-table td.num{text-align:right;}
+  .seats-table tbody td{padding:10px 14px; border-top:1px solid var(--line); white-space:nowrap;}
+  .seats-table tbody tr:nth-child(even){background:#FAFAFA;}
+  .seats-table td.b-name-cell{font-weight:600; color:var(--ink); white-space:normal; min-width:200px;}
+  .seats-table td.num{font-variant-numeric:tabular-nums; font-weight:700;}
+  .seats-note{margin:12px 2px 0; font-size:11.5px; color:var(--muted); line-height:1.5;}
+
+  /* ===== HALL TICKET CARD ===== */
+  .cert-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-lg);
+    overflow:hidden;
+    position:relative;
+  }
+  .cert-head{
+    background:var(--ink);
+    color:#fff;
+    padding:20px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .cert-head .cert-label{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#9CA3AF; font-weight:700; margin:0 0 4px;}
+  .cert-head h3{margin:0; font-size:19px; font-weight:700;}
+  .cert-avatar{
+    width:50px; height:50px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.1);
+    border:1.5px solid rgba(255,255,255,0.25);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    color:#fff;
+    flex-shrink:0;
+  }
+  .cert-body{padding:22px;}
+
+  .rank-strip{background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-sm); padding:16px 18px 18px; margin-bottom:20px;}
+  .rank-strip-top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px;}
+  .rank-strip-top .label{font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted);}
+  .rank-strip-top .value{font-family:'Space Grotesk', sans-serif; font-size:25px; font-weight:700; color:var(--ink);}
+  .rank-track{position:relative; height:7px; border-radius:99px; background:linear-gradient(90deg, var(--teal) 0%, var(--ink) 55%, var(--pink) 100%); opacity:0.9;}
+  .rank-marker{position:absolute; top:50%; width:15px; height:15px; border-radius:50%; background:#fff; border:3px solid var(--ink); transform:translate(-50%,-50%); box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+  .rank-strip-labels{display:flex; justify-content:space-between; margin-top:8px; font-size:10.5px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.03em;}
+
+  .cert-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px 24px;}
+  .cert-item dt{font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 5px;}
+  .cert-item dd{margin:0; font-size:15px; font-weight:600; color:var(--ink);}
+  .cert-item.wide{grid-column:1 / -1;}
+  .cert-divider{grid-column:1/-1; border-top:1px dashed var(--line-strong); margin:2px 0;}
+
+  footer{border-top:1px solid var(--line); padding:22px 20px 40px; text-align:center; color:var(--muted); font-size:12px;}
+  footer strong{color:var(--ink);}
+
+  @media (max-width:640px){
+    .masthead-meta{display:none;}
+    .masthead{padding:20px 16px 18px;}
+    main{padding:20px 14px 60px;}
+    .field-row.cols-college,
+    .field-row.cols-search-1,
+    .field-row.cols-search-2{grid-template-columns:1fr;}
+    .field-actions{width:100%;}
+    .field-actions .btn{flex:1 1 auto;}
+    .search-card{padding:16px;}
+    .table-wrap{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+    table{min-width:760px;}
+    .seats-summary{padding:16px;}
+    .seats-summary-head{align-items:stretch;}
+    .seat-stats{width:100%;}
+    .seat-stat{flex:1 1 auto;}
+    .seats-table{min-width:520px;}
+    .cutoff-widget-row{grid-template-columns:1fr;}
+    .cutoff-panel{padding:14px;}
+    .cert-grid{grid-template-columns:1fr 1fr; gap:14px 16px;}
+    .cert-body{padding:18px 16px;}
+    .cert-head{padding:16px 18px;}
+  }
+
+  @media (max-width:420px){
+    .cert-grid{grid-template-columns:1fr;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  :focus-visible{outline:2px solid var(--teal); outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div>
+      <p class="brand-eyebrow">Andhra Pradesh &nbsp;&bull;&nbsp; ECET 2026</p>
+      <h1 class="brand-title">Seat Allotment Results Portal</h1>
+      <p class="brand-sub">Official record of lateral-entry engineering seat allotments. Search by college, candidate name, or hall ticket number.</p>
+    </div>
+    <div class="masthead-meta">
+      <div class="meta-pill"><strong>18,200</strong><span>Allotments</span></div>
+      <div class="meta-pill"><strong>240</strong><span>Colleges</span></div>
+      <div class="meta-pill"><strong>47</strong><span>Branches</span></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabbar">
+  <div class="tabbar-inner">
+    <div class="filter-group" role="tablist">
+      <button class="tab-btn active" data-tab="college" role="tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h1M14 9h1M9 13h1M14 13h1M9 17h1M14 17h1"/></svg>
+        <span class="label">College</span>
+      </button>
+      <button class="tab-btn" data-tab="name" role="tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+        <span class="label">Name</span>
+      </button>
+      <button class="tab-btn" data-tab="hallticket" role="tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>
+        <span class="label">Hall Ticket</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- PANEL 1: COLLEGE -->
+  <section class="panel active" id="panel-college">
+    <div class="panel-head">
+      <h2>Search by College</h2>
+      <p>Select a college to view every candidate allotted a seat there, across all branches and categories.</p>
+    </div>
+
+    <div class="search-card">
+      <div class="field-row cols-college">
+        <div class="field">
+          <label for="college-input">College</label>
+          <div class="combo">
+            <input type="text" id="college-input" placeholder="Search by college name or code&hellip;" autocomplete="off">
+            <input type="hidden" id="college-select" value="">
+            <div class="combo-list" id="college-list" role="listbox"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="college-branch-filter">Branch</label>
+          <select id="college-branch-filter" disabled>
+            <option value="">Select a college first</option>
+          </select>
+        </div>
+      </div>
+      <p class="hint">Select a branch to see seats for that branch only, instead of the whole college.</p>
+      <button class="cutoff-link" id="college-cutoff-toggle" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        View Category &amp; Branch Cutoffs
+      </button>
+    </div>
+
+    <div class="cutoff-panel" id="college-cutoff-panel" hidden></div>
+
+    <div id="college-results"></div>
+  </section>
+
+  <!-- PANEL 2: NAME -->
+  <section class="panel" id="panel-name">
+    <div class="panel-head">
+      <h2>Search by Candidate Name</h2>
+      <p>Type a full or partial name. Results update as you refine your search.</p>
+    </div>
+
+    <div class="search-card">
+      <div class="field-row cols-search-1">
+        <div class="field">
+          <label for="name-input">Candidate name</label>
+          <input type="text" id="name-input" placeholder="e.g. Ande Dinesh Venkata Trinath" autocomplete="off">
+        </div>
+        <div class="field-actions">
+          <button class="btn btn-ghost" id="name-clear">Clear</button>
+        </div>
+      </div>
+      <p class="hint">Minimum 3 characters to search. Matches anywhere in the name.</p>
+      <button class="cutoff-link" id="name-cutoff-toggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        View College Cutoffs
+      </button>
+    </div>
+
+    <div class="cutoff-panel" id="name-cutoff-panel" hidden></div>
+
+    <div id="name-results"></div>
+  </section>
+
+  <!-- PANEL 3: HALL TICKET -->
+  <section class="panel" id="panel-hallticket">
+    <div class="panel-head">
+      <h2>Search by Hall Ticket Number</h2>
+      <p>Enter the exact hall ticket number to view the full allotment record for that candidate.</p>
+    </div>
+
+    <div class="search-card">
+      <div class="field-row cols-search-2">
+        <div class="field">
+          <label for="ht-input">Hall ticket number</label>
+          <input type="text" id="ht-input" placeholder="e.g. 76192213192" autocomplete="off" inputmode="numeric">
+        </div>
+        <div class="field-actions">
+          <button class="btn" id="ht-search">Search</button>
+          <button class="btn btn-ghost" id="ht-clear">Clear</button>
+        </div>
+      </div>
+      <button class="cutoff-link" id="ht-cutoff-toggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        View College Cutoffs
+      </button>
+    </div>
+
+    <div class="cutoff-panel" id="ht-cutoff-panel" hidden></div>
+
+    <div id="ht-results"></div>
+  </section>
+
+</main>
+
+<footer>
+  Data sourced from the official AP ECET 2026 seat allotment list &nbsp;&bull;&nbsp; <strong>For reference only</strong> &mdash; candidates should verify allotment status via the official APSCHE / ECET counselling portal.
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
